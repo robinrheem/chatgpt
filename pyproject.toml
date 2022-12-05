@@ -10,6 +10,7 @@ python = "^3.10"
 typer = {extras = ["all"], version = "^0.7.0"}
 requests = "^2.28.1"
 python-decouple = "^3.6"
+playwright = "^1.28.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.20.0"
