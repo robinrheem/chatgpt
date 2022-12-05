@@ -1,5 +1,7 @@
 import json
+import uuid
 
+import requests
 import typer
 from playwright.sync_api import sync_playwright
 from rich import print
@@ -15,6 +17,9 @@ def login(
 ) -> None:
     """
     Login to OpenAI ChatGPT and set access token
+
+    :params email: OpenAI email
+    :params password: OpenAI account password
     """
     with sync_playwright() as p:
         browser = p.webkit.launch(headless=True)
@@ -35,17 +40,42 @@ def login(
                 if cookie["name"] == "__Secure-next-auth.session-token"
             ][0]
             print("[green]Successfully obtained session token[/green]")
-            with open(settings.SETTINGS_PATH, "a") as s:
-                json.dump({"sessionToken": session_token}, s)
+            with open(settings.SETTINGS_PATH, "w") as s:
+                json.dump(
+                    {
+                        "sessionToken": session_token,
+                        "parentId": str(uuid.uuid4()),
+                        "conversationId": None,
+                    },
+                    s,
+                )
         browser.close()
 
 
 @app.command()
-def reset() -> None:
+def prompt(prompt: str) -> None:
     """
-    Reset conversation with ChatGPT
+    Get ChatGPT prompt
+
+    :params prompt: prompt to feed OpenAI
     """
-
-
-if __name__ == "__main__":
-    app()
+    response = requests.post(
+        "https://chat.openai.com/backend-api/conversation",
+        headers={
+            "Authorization": f"Bearer {settings.SESSION_TOKEN}",
+        },
+        json={
+            "action": "next",
+            "messages": [
+                {
+                    "id": str(uuid.uuid4()),
+                    "role": "user",
+                    "content": {"content_type": "text", "parts": [prompt]},
+                }
+            ],
+            "conversation_id": settings.CONVERSATION_ID,
+            "parent_message_id": settings.PARENT_ID,
+            "model": "text-davinci-002-render",
+        },
+    ).json()
+    print(response)
