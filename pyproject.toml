@@ -5,6 +5,9 @@ description = "Just a ChatGPT interface for fun!"
 authors = ["Robin Rheem <robinrheem@gmail.com>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+chatgpt = "chatgpt.main:app"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 typer = {extras = ["all"], version = "^0.7.0"}
