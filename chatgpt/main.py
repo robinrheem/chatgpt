@@ -1,6 +1,10 @@
+import json
+
 import typer
 from playwright.sync_api import sync_playwright
 from rich import print
+
+from chatgpt import settings
 
 app = typer.Typer()
 
@@ -30,7 +34,9 @@ def login(
                 for cookie in cookies
                 if cookie["name"] == "__Secure-next-auth.session-token"
             ][0]
-            print(f"Session token: {session_token}")
+            print("[green]Successfully obtained session token[/green]")
+            with open(settings.SETTINGS_PATH, "a") as s:
+                json.dump({"sessionToken": session_token}, s)
         browser.close()
 
 
